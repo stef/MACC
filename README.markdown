@@ -5,17 +5,17 @@ apt-get install seccure apg ksh
 
 RUNNING THE PoC
 
-# Running the "broadcast channel" simulation
-cd server
-sh ./init.sh
-sh ./multiplexer.sh
+ # Running the "broadcast channel" simulation
+ cd server
+ sh ./init.sh
+ sh ./multiplexer.sh
 
-# Running agents - as many as you want 
+ # Running agents - as many as you want
 
-# open a new shell,
-# go to MACC root directory
+ # open a new shell,
+ # go to MACC root directory
 
-ksh ./motrc.sh # run an agent
+ ksh ./motrc.sh # run an agent
 
 Protocol
 
