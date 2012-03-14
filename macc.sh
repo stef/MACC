@@ -50,10 +50,11 @@ function dhreply {
         read -p p2
     done
     print -p "$p"
-    echo "dh2:$socket:$p2" >>"$peer"
     read -p skey
     read -p vkey
     print "$skey\n$vkey" >"${VOLATILE}/${peer##*/}"
+    echo "dh2:$socket:$p2" >>"$peer"
+    sleep 0.2
     auth_reply "$peer" "$vkey" "auth"
 }
 
@@ -115,8 +116,16 @@ function msg {
     rm "$mkey"
 }
 
+function leave {
+    [[ "x$1" == "x$socket" ]] && return
+    tmp=$(mktemp)
+    sort  "$VOLATILE/session" | uniq | fgrep -v "${VOLATILE}/${1##*/}" >"$tmp" && mv "$tmp" "$VOLATILE/session"
+    echo "$1 left"
+}
+
 # clean up bg processes and volatile data
 function cleanup {
+    echo "leave:$socket" >>"$MULTIPLEXER"/in
     rm "$socket" "${VOLATILE}"/tmp.* "$VOLATILE"/session 2>>/dev/null
     kill $groupdesc $sockdesc #$userdesc
     exit 2
@@ -128,6 +137,7 @@ function group_dispatcher {
     tail -q --pid=$$ -fn0 "$MULTIPLEXER"/out | while read line; do
         case "$line" in
             agent:*) agent "${line#agent:}" ; continue;;
+            leave:*) leave "${line#leave:}" ; continue;;
             msg:*) msg "${line#msg:}"; continue;;
             *) echo "${line}";;
         esac
