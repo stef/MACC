@@ -13,7 +13,7 @@ RUNNING THE PoC
 
  # open a new shell,
  # create a pristine directory for an agent
- mkdir -p agent1/volatile
+ mkdir -p agent1
  cd agent1/
  macc.sh # run an agent
 
@@ -27,12 +27,12 @@ macc.sh now runs in the foreground and waits for keyboard input to be broadcast 
 
 let's create 2 more agents
  # open a new terminal
- mkdir -p agent2/volatile
+ mkdir -p agent2
  cd agent2/
  macc.sh
 
  # open a new terminal
- mkdir -p agent3/volatile
+ mkdir -p agent3
  cd agent3/
  macc.sh
 

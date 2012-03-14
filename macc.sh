@@ -154,6 +154,8 @@ fi
 PUB=$(cat "$PUBF")
 KEY=$(cat "$KEYF")
 
+[[ ! -d "$VOLATILE" ]] && mkdir "$VOLATILE"
+
 # announce intent to join on broadcast channel
 echo "agent:$socket" >>"$MULTIPLEXER"/in
 
