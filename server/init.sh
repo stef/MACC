@@ -1,1 +1,0 @@
-mknod in p
