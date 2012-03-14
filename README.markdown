@@ -1,7 +1,8 @@
 Simple Multi-agent encryption
 
 Dependencies
-apt-get install seccure apg ksh
+
+    apt-get install seccure apg ksh
 
 RUNNING THE PoC
 
