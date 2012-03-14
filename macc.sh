@@ -87,33 +87,39 @@ function auth_reply {
 function send {
     mkey=$(mktemp "$VOLATILE/key.XXXXXX")
     apg -q -a1 -m 90 -n 1 >"$mkey"
-    data=$(echo "msg:$1" | openssl enc -aes-256-cfb -e -a -kfile "$mkey" | tr -d '\n')
+    data=$(echo "msg:$socket:$1" | openssl enc -aes-256-cfb -e -a -kfile "$mkey" | tr -d '\n')
     keybag=""
     sort "$VOLATILE/session" | uniq | while read peer; do
         keybag="$keybag $(cat "$mkey" | openssl enc -aes-256-cfb -e -a -kfile "${VOLATILE}/${peer##*/}" | tr -d '\n')"
     done
     rm "$mkey"
-    echo "msg:$socket:$data:$keybag" >>"$MULTIPLEXER"/in
+    echo "msg:$data:$keybag" >>"$MULTIPLEXER"/in
 }
 
 # receive an encrypted message
 # try to decrypt using the shared secret with the sender on all encrypted keys
 # try to decrypt the message with the decrypted keys, if starts with msg: display the rest"
 function msg {
-    peer=$(echo "$1" | cut -d":" -f1)
-    [[ "x$peer" == "x$socket" ]] && return
-    data=$(echo "$1" | cut -d":" -f2)
-    keys=$(echo "$1" | cut -d":" -f3-)
+    data=$(echo "$1" | cut -d":" -f1)
+    keys=$(echo "$1" | cut -d":" -f2-)
     mkey=$(mktemp "$VOLATILE/key.XXXXXX")
-    for key in $keys; do
-        echo "$key" | sed 's/\(.\{64\}\)/\1\n/g' | openssl enc -aes-256-cfb -d -a -kfile "$VOLATILE/${peer##*/}" >"$mkey"
-        clr="$(echo "$data" | sed 's/\(.\{64\}\)/\1\n/g' | openssl enc -aes-256-cfb -d -a -kfile "$mkey")"
-        [[ "x$clr" =~ "^xmsg:" ]] && {
-            print "$peer: ${clr#msg:}"
-            break
-        }
+    ready=false
+    sort  "$VOLATILE/session" | uniq | while read pkey; do
+        for key in $keys; do
+            echo "$key" | sed 's/\(.\{64\}\)/\1\n/g' | openssl enc -aes-256-cfb -d -a -kfile "$pkey" >"$mkey"
+            clr="$(echo "$data" | sed 's/\(.\{64\}\)/\1\n/g' | openssl enc -aes-256-cfb -d -a -kfile "$mkey")"
+            [[ "msg:" == "$(echo "$clr" | cut -c1-4)" ]] && {
+                peer=$(echo "${clr}" | cut -d':' -f2)
+                [[ "x$peer" == "x${socket}" ]] || {
+                    msg=$(echo "${clr}" | cut -d':' -f3-)
+                    print "$peer $msg"
+                }
+                ready=true
+                break
+            }
+        done
+        $ready && break
     done
-    rm "$mkey"
 }
 
 function leave {
