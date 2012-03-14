@@ -12,3 +12,17 @@ New user joins group
 Agent send encrypted broadcast
 1. agent encrypts his message for each user seperately
 2. agent sends the n encrypted messages to the broadcast channel
+
+RUNNING THE PoC
+
+# Running the "broadcast channel" simulation
+cd server
+sh ./init.sh
+sh ./multiplexer.sh
+
+# Running agents - as many as you want 
+
+# open a new shell,
+# go to MACC root directory
+
+ksh ./motrc.sh # run an agent
