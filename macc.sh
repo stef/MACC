@@ -14,7 +14,7 @@ KEYF="key"
 MULTIPLEXER="${1:-server}"
 VOLATILE="volatile"
 
-# initiats a session setup with a new agent
+# initiates a session setup with a new agent
 function agent {
     [[ "x$1" == "x$socket" ]] && return
     echo "found peer $1"
@@ -81,6 +81,8 @@ function auth_reply {
     (printf "$3:$socket:" >>"$1"; echo "$auth" | openssl enc -aes-256-cfb -e -a -kfile "${VOLATILE}/${1##*/}" | tr -d '\n'; echo) >>"$1"
 }
 
+# create a unique key, encrypt this seperately with all the shared secrets from this session,
+# encrypt the data using the unique key and send this to the broadcast channel
 function send {
     mkey=$(mktemp "$VOLATILE/key.XXXXXX")
     apg -q -a1 -m 90 -n 1 >"$mkey"
@@ -93,6 +95,9 @@ function send {
     echo "msg:$socket:$data:$keybag" >>"$MULTIPLEXER"/in
 }
 
+# receive an encrypted message
+# try to decrypt using the shared secret with the sender on all encrypted keys
+# try to decrypt the message with the decrypted keys, if starts with msg: display the rest"
 function msg {
     peer=$(echo "$1" | cut -d":" -f1)
     [[ "x$peer" == "x$socket" ]] && return
