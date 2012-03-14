@@ -67,6 +67,7 @@ function auth {
         vkey=$(tail -1 "${VOLATILE}/${peer##*/}")
         [[ "x$vkey" == "x$vkey_other" ]] && echo -n "$auth" | verify -a "$key" 2>&1 | fgrep -qs "Signature successfully verified!" && {
             echo "$VOLATILE/${peer##*/}" >>"$VOLATILE/session"
+            echo "$name" >"$VOLATILE/${peer##*/}.name"
             echo "accepted connection from $name"
             # TODO: check this if this can be spoofed, and the verification key leaked, consequences?
             [[ -z "$2" ]] && auth_reply "$peer" "$vkey" "auth2"
@@ -96,6 +97,10 @@ function send {
     echo "msg:$data:$keybag" >>"$MULTIPLEXER"/in
 }
 
+function peername {
+    echo "$VOLATILE/${1##*/}.name"
+}
+
 # receive an encrypted message
 # try to decrypt using the shared secret with the sender on all encrypted keys
 # try to decrypt the message with the decrypted keys, if starts with msg: display the rest"
@@ -112,7 +117,7 @@ function msg {
                 peer=$(echo "${clr}" | cut -d':' -f2)
                 [[ "x$peer" == "x${socket}" ]] || {
                     msg=$(echo "${clr}" | cut -d':' -f3-)
-                    print "$peer $msg"
+                    print "$(peername $peer) $msg"
                 }
                 ready=true
                 break
