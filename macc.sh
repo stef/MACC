@@ -68,7 +68,7 @@ function auth {
         [[ "x$vkey" == "x$vkey_other" ]] && echo -n "$auth" | verify -a "$key" 2>&1 | fgrep -qs "Signature successfully verified!" && {
             echo "$VOLATILE/${peer##*/}" >>"$VOLATILE/session"
             echo "$name" >"$VOLATILE/${peer##*/}.name"
-            echo "accepted connection from $name"
+            printf "%10-s- joined\n" "$name"
             # TODO: check this if this can be spoofed, and the verification key leaked, consequences?
             [[ -z "$2" ]] && auth_reply "$peer" "$vkey" "auth2"
             break
@@ -98,7 +98,7 @@ function send {
 }
 
 function peername {
-    echo "$VOLATILE/${1##*/}.name"
+    cat "$VOLATILE/${1##*/}.name"
 }
 
 # receive an encrypted message
@@ -117,7 +117,7 @@ function msg {
                 peer=$(echo "${clr}" | cut -d':' -f2)
                 [[ "x$peer" == "x${socket}" ]] || {
                     msg=$(echo "${clr}" | cut -d':' -f3-)
-                    print "$(peername $peer) $msg"
+                    printf "%10-s> %s\n" "$(peername $peer)" "$msg"
                 }
                 ready=true
                 break
@@ -131,7 +131,7 @@ function leave {
     [[ "x$1" == "x$socket" ]] && return
     tmp=$(mktemp)
     sort  "$VOLATILE/session" | uniq | fgrep -v "${VOLATILE}/${1##*/}" >"$tmp" && mv "$tmp" "$VOLATILE/session"
-    echo "$1 left"
+    printf "%10-s- left\n" "$(peername $1)"
 }
 
 # clean up bg processes and volatile data
