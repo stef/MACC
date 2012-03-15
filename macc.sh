@@ -17,14 +17,14 @@ VOLATILE="volatile"
 # initiates a session setup with a new agent
 function agent {
     [[ "x$1" == "x$socket" ]] && return
-    echo "found peer $1"
+    printf "%s -!- %s found\n" "$(date '+%H:%M')" "$1"
     dh 2>&1 |&
     read -p p
     while [[ "$p" == "WARNING: Cannot obtain memory lock: Cannot allocate memory." ]]; do
         # skip warning
         read -p p
     done
-    echo "dh:$socket:$p" >>"$1"
+    sendto "$1" "dh:$socket:$p"
     tail -fn0 "$socket" | while read line; do
         echo "$line" | grep -qs "dh2:$1:" &&  {
             resp=$(echo "${line}" | cut -d':' -f3-)
@@ -41,7 +41,7 @@ function agent {
 function dhreply {
     [[ ! "x$1" =~ 'x[^:]*:.*' ]] || return
     peer=$(echo "$1" | cut -d":" -f1)
-    echo "dh request from $peer"
+    printf "%s -!- %s dh request\n" "$(date '+%H:%M')" "$peer"
     p=$(echo "${1}" | cut -d':' -f2-)
     dh 2>&1 |&
     read -p p2
@@ -53,7 +53,7 @@ function dhreply {
     read -p skey
     read -p vkey
     print "$skey\n$vkey" >"${VOLATILE}/${peer##*/}"
-    echo "dh2:$socket:$p2" >>"$peer"
+    sendto "$peer" "dh2:$socket:$p2"
     sleep 0.2
     auth_reply "$peer" "$vkey" "auth"
 }
@@ -68,7 +68,7 @@ function auth {
         [[ "x$vkey" == "x$vkey_other" ]] && echo -n "$auth" | verify -a "$key" 2>&1 | fgrep -qs "Signature successfully verified!" && {
             echo "$VOLATILE/${peer##*/}" >>"$VOLATILE/session"
             echo "$name" >"$VOLATILE/${peer##*/}.name"
-            printf "%10-s- joined\n" "$name"
+            printf "%s -!- %10-s joined\n" "$(date '+%H:%M')" "$name"
             # TODO: check this if this can be spoofed, and the verification key leaked, consequences?
             [[ -z "$2" ]] && auth_reply "$peer" "$vkey" "auth2"
             break
@@ -80,7 +80,7 @@ function auth {
 # params: peer, vkey, cmd
 function auth_reply {
     auth=$(echo "$2" | sign -F "$KEYF" -a 2>&1 | fgrep -v "WARNING: Cannot obtain memory lock: Cannot allocate memory.")
-    (printf "$3:$socket:" >>"$1"; echo "$auth" | openssl enc -aes-256-cfb -e -a -kfile "${VOLATILE}/${1##*/}" | tr -d '\n'; echo) >>"$1"
+    sendto "$1" "$(printf "$3:$socket:"; echo "$auth" | openssl enc -aes-256-cfb -e -a -kfile "${VOLATILE}/${1##*/}" | tr -d '\n'; echo)"
 }
 
 # create a unique key, encrypt this seperately with all the shared secrets from this session,
@@ -117,7 +117,7 @@ function msg {
                 peer=$(echo "${clr}" | cut -d':' -f2)
                 [[ "x$peer" == "x${socket}" ]] || {
                     msg=$(echo "${clr}" | cut -d':' -f3-)
-                    printf "%10-s> %s\n" "$(peername $peer)" "$msg"
+                    printf "%s <%10-s> %s\n" "$(date '+%H:%M')" "$(peername $peer)" "$msg"
                 }
                 ready=true
                 break
@@ -131,13 +131,17 @@ function leave {
     [[ "x$1" == "x$socket" ]] && return
     tmp=$(mktemp)
     sort  "$VOLATILE/session" | uniq | fgrep -v "${VOLATILE}/${1##*/}" >"$tmp" && mv "$tmp" "$VOLATILE/session"
-    printf "%10-s- left\n" "$(peername $1)"
+    printf "%s -!- %10-s left\n"  "$(date '+%H:%M')" "$(peername $1)"
+}
+
+function sendto {
+    echo "$2" >>"$1"
 }
 
 # clean up bg processes and volatile data
 function cleanup {
     echo "leave:$socket" >>"$MULTIPLEXER"/in
-    rm "$socket" "${VOLATILE}"/tmp.* "$VOLATILE"/session 2>>/dev/null
+    rm "$socket" "${VOLATILE}"/tmp.* "${VOLATILE}"/key.* "$VOLATILE"/session 2>>/dev/null
     kill $groupdesc $sockdesc #$userdesc
     exit 2
 }
