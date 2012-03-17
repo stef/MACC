@@ -14,36 +14,6 @@ KEYF="key"
 MULTIPLEXER="${1:-server}"
 VOLATILE="volatile"
 
-socket=$(mktemp)
-
-if [[ ! -r $KEYF ]]; then
-    # generate static private/pub key pair
-    echo "[!] no keys found, generating new" >&2
-    apg -q -a1 -m 90 -n 1 >"$KEYF"
-    key -F "$KEYF" >"$PUBF" 2>/dev/null
-    echo -n "[!] please share this public key with your peers "
-    cat "$PUBF"
-fi
-
-PUB=$(cat "$PUBF")
-KEY=$(cat "$KEYF")
-
-[[ ! -d "$VOLATILE" ]] && mkdir "$VOLATILE"
-
-# step 1. announce intent to join on broadcast channel
-echo "agent:$socket" >>"$MULTIPLEXER"/in
-
-# start handlers
-group_dispatcher &
-groupdesc=$!
-sock_dispatcher &
-sockdesc=$!
-
-# wait for user input
-while read line; do
-    send "$line"
-done
-
 # step 2. initiates a session setup with a new agent
 function agent {
     [[ "x$1" == "x$socket" ]] && return
@@ -181,11 +151,12 @@ function peername {
 # clean up bg processes and volatile data
 function cleanup {
     echo "leave:$socket" >>"$MULTIPLEXER"/in
-    rm "$socket" "${VOLATILE}"/tmp.* "${VOLATILE}"/key.* "$VOLATILE"/session 2>>/dev/null
-    kill $groupdesc $sockdesc #$userdesc
+    #rm "$socket" "${VOLATILE}"/tmp.* "${VOLATILE}"/key.* "$VOLATILE"/session 2>>/dev/null
+    rm "${VOLATILE}"/tmp.* "${VOLATILE}"/key.* "$VOLATILE"/session 2>>/dev/null
+    kill $groupdesc $p2pdesc #$userdesc
     exit 2
 }
-trap "cleanup" INT PIPE
+trap "cleanup" INT PIPE EXIT HUP
 
 # dispatch messages in group channel for broadcast
 function group_dispatcher {
@@ -200,7 +171,7 @@ function group_dispatcher {
 }
 
 # dispatcher for private socket for p2p connections
-function sock_dispatcher {
+function p2p_dispatcher {
     tail -q --pid=$$ -fn0 "$socket" | while read line; do
         case "$line" in
             dh:*) dhreply "${line#dh:}" ; continue;;
@@ -211,4 +182,36 @@ function sock_dispatcher {
         esac
     done
 }
+
+# for p2p connections
+socket=$(mktemp)
+
+if [[ ! -r $KEYF ]]; then
+    # generate static private/pub key pair
+    echo "[!] no keys found, generating new" >&2
+    apg -q -a1 -m 90 -n 1 >"$KEYF"
+    key -F "$KEYF" >"$PUBF" 2>/dev/null
+    echo -n "[!] please share this public key with your peers "
+    cat "$PUBF"
+fi
+
+PUB=$(cat "$PUBF")
+KEY=$(cat "$KEYF")
+
+# for PoC purposes only, should be in volatile memory
+[[ ! -d "$VOLATILE" ]] && mkdir "$VOLATILE"
+
+# step 1. announce intent to join on broadcast channel
+echo "agent:$socket" >>"$MULTIPLEXER"/in
+
+# start handlers
+group_dispatcher &
+groupdesc=$!
+p2p_dispatcher &
+p2pdesc=$!
+
+# wait for user input
+while read line; do
+    send "$line"
+done
 
