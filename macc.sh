@@ -14,7 +14,37 @@ KEYF="key"
 MULTIPLEXER="${1:-server}"
 VOLATILE="volatile"
 
-# initiates a session setup with a new agent
+socket=$(mktemp)
+
+if [[ ! -r $KEYF ]]; then
+    # generate static private/pub key pair
+    echo "[!] no keys found, generating new" >&2
+    apg -q -a1 -m 90 -n 1 >"$KEYF"
+    key -F "$KEYF" >"$PUBF" 2>/dev/null
+    echo -n "[!] please share this public key with your peers "
+    cat "$PUBF"
+fi
+
+PUB=$(cat "$PUBF")
+KEY=$(cat "$KEYF")
+
+[[ ! -d "$VOLATILE" ]] && mkdir "$VOLATILE"
+
+# step 1. announce intent to join on broadcast channel
+echo "agent:$socket" >>"$MULTIPLEXER"/in
+
+# start handlers
+group_dispatcher &
+groupdesc=$!
+sock_dispatcher &
+sockdesc=$!
+
+# wait for user input
+while read line; do
+    send "$line"
+done
+
+# step 2. initiates a session setup with a new agent
 function agent {
     [[ "x$1" == "x$socket" ]] && return
     printf "%s -!- %s found\n" "$(date '+%H:%M')" "$1"
@@ -24,9 +54,11 @@ function agent {
         # skip warning
         read -p p
     done
+    # step 3. send dh request to newly joined agent
     sendto "$1" "dh:$socket:$p"
     tail -fn0 "$socket" | while read line; do
         echo "$line" | grep -qs "dh2:$1:" &&  {
+            # step 6. finish dh exchange with joining agent
             resp=$(echo "${line}" | cut -d':' -f3-)
             print -p "$resp"
             break
@@ -37,7 +69,7 @@ function agent {
     print "$skey\n$vkey" >"${VOLATILE}/${1##*/}"
 }
 
-# handle replies to DH key exchanges
+# step 4. handle replies to DH key exchanges
 function dhreply {
     [[ ! "x$1" =~ 'x[^:]*:.*' ]] || return
     peer=$(echo "$1" | cut -d":" -f1)
@@ -53,12 +85,14 @@ function dhreply {
     read -p skey
     read -p vkey
     print "$skey\n$vkey" >"${VOLATILE}/${peer##*/}"
+    # step 5. send dh reply to other agent
     sendto "$peer" "dh2:$socket:$p2"
     sleep 0.2
+    # step 7. initiate authentication to other agent
     auth_reply "$peer" "$vkey" "auth"
 }
 
-# authenticate peer, initiated by joining agent after successful DH shared secret setup
+# step 8. authenticate peer, initiated by joining agent after successful DH shared secret setup
 function auth {
     peer=$(echo "$1" | cut -d":" -f1)
     auth=$(echo "$1" | cut -d":" -f2- | sed 's/\(.\{64\}\)/\1\n/g' | openssl enc -aes-256-cfb -d -a -kfile "${VOLATILE}/${peer##*/}")
@@ -83,6 +117,8 @@ function auth_reply {
     sendto "$1" "$(printf "$3:$socket:"; echo "$auth" | openssl enc -aes-256-cfb -e -a -kfile "${VOLATILE}/${1##*/}" | tr -d '\n'; echo)"
 }
 
+# initialization functions end
+
 # create a unique key, encrypt this seperately with all the shared secrets from this session,
 # encrypt the data using the unique key and send this to the broadcast channel
 function send {
@@ -95,10 +131,6 @@ function send {
     done
     rm "$mkey"
     echo "msg:$data:$keybag" >>"$MULTIPLEXER"/in
-}
-
-function peername {
-    cat "$VOLATILE/${1##*/}.name"
 }
 
 # receive an encrypted message
@@ -127,6 +159,7 @@ function msg {
     done
 }
 
+# leave a group
 function leave {
     [[ "x$1" == "x$socket" ]] && return
     tmp=$(mktemp)
@@ -134,9 +167,16 @@ function leave {
     printf "%s -!- %10-s left\n"  "$(date '+%H:%M')" "$(peername $1)"
 }
 
+# helper functions
+
 function sendto {
     echo "$2" >>"$1"
 }
+
+function peername {
+    cat "$VOLATILE/${1##*/}.name"
+}
+
 
 # clean up bg processes and volatile data
 function cleanup {
@@ -171,31 +211,4 @@ function sock_dispatcher {
         esac
     done
 }
-
-socket=$(mktemp)
-
-# generate static private/pub key pair
-if [[ ! -r $KEYF ]]; then
-    echo "[!] no keys found, generating new" >&2
-    apg -q -a1 -m 90 -n 1 >"$KEYF"
-    key -F "$KEYF" >"$PUBF" 2>/dev/null
-fi
-
-PUB=$(cat "$PUBF")
-KEY=$(cat "$KEYF")
-
-[[ ! -d "$VOLATILE" ]] && mkdir "$VOLATILE"
-
-# announce intent to join on broadcast channel
-echo "agent:$socket" >>"$MULTIPLEXER"/in
-
-group_dispatcher &
-groupdesc=$!
-sock_dispatcher &
-sockdesc=$!
-
-# wait for user input
-while read line; do
-    send "$line"
-done
 
