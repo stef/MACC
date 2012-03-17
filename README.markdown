@@ -53,15 +53,19 @@ Setting up a new agent
 
 New user joins group
 
- #. New agent announces unencrypted broadcast to the group.
- #. Group members start DH key exchange with new agent
- #. the new agent signs his ephemeral key with his static key and sends this to all group members
- #. Group members verify signature, if successful they respond with their verification key signed by their own static key
+ 1. New agent announces unencrypted broadcast to the group.
+
+ 2. Group members start DH key exchange with new agent
+
+ 3. the new agent signs his ephemeral key with his static key and sends this to all group members
+
+ 4. Group members verify signature, if successful they respond with their verification key signed by their own static key
 
 Agent send encrypted broadcast
 
- #. agent encrypts his message for each user seperately
- #. agent sends the n encrypted messages to the broadcast channel
+ 1. agent encrypts his message for each user seperately
+
+ 2. agent sends the n encrypted messages to the broadcast channel
 
 Sample session with 3 participants
 
