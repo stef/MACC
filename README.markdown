@@ -1,5 +1,7 @@
 Simple Multi-agent encryption
 
+NOTICE: this is a proof-of-concept, it provide only local communication. This is an experimental tool. You could however easily hack this to make it work over irc, using ii and nc for example... ;)
+
 Dependencies
 
     apt-get install seccure apg ksh
