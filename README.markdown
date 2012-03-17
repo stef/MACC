@@ -62,6 +62,8 @@ New user joins group
 
  4. Group members verify signature, if successful they respond with their verification key signed by their own static key
 
+ 5. All group members that verify the signature successfully add the new party to their session.
+
 Agent send encrypted broadcast
 
  1. agent encrypts his message for each user seperately
