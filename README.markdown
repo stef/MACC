@@ -115,19 +115,23 @@ The broadcast channel contains this data
     leave:/tmp/tmp.AkBH3lNAmz
 
 The Agents have this in their "sockets"
+
 agent1
+
     dh2:/tmp/tmp.TiOrRUrTOv:&gTEf?IDbV7Asmez~3+-%Tk6_UxYXC/XST<+T<1p%@Wy.K?sK]%INRqt||ju#R(wqkdX;O9c@|]g7(PD!
     auth:/tmp/tmp.TiOrRUrTOv:U2FsdGVkX1/R6j64FqZbucHZ2xqH0CbvMVKfmpzrnMJG88nSwdprgbrm7Q5TyQtgfYW+ZgURNgHqOm0NvsCdaJPCHRYmIVqdpMLjnlprzfBpQRpkMK/KgKLRz7MaIu5m1Kx69TwikaXRYTYB512sJoVoNB5WZLLFDCPoO7yVMawljY9Bjb0ZDAEzTcAKbMLr5gdgoR/9E1lLg2YUR84MM0drO2PU/OzdkAVYP71S/l6Ei/KwOG8aIng1ZmVygCb8PNf5LcNpXxE8m0KFXS1CjLngGj/5VWXvJk6W
     dh2:/tmp/tmp.AkBH3lNAmz:%zczJU-o;$!RiA}EwWq_ZL4%^!^IA-5M.<M-^j3ewZ)WKy@)3}UAk[5v3g)R$66*XLH)wL,c}D.7?eVT=
     auth:/tmp/tmp.AkBH3lNAmz:U2FsdGVkX18jruuclmmVKVpcSkB8rxMhStWpAP3PCSsiCGfZMFdwBjnKPN91uVTDCDNaH0e9E/0l2DZT1MF/yOjcB6eglonjn7YFaCm0Rn6p9af6Jb/ZCz8hqADA4IPVjjLRo60pAuxeW/W60gcXl0oeizGcfe659KzUVbCpHxGvqpmJNdp2MOSLt6NNiGJOCKMG1d5hM9NAobnvcCWGii153IYE8chgF6OTgtGcC12s880mNPqiRPbzj6GmglYWZJjnUImN82toJrIYOySOQgUmjJQg9bNSBLmK
 
 agent2
+
     dh:/tmp/tmp.WsSHipXKVZ:#*vW6]:tRnKA)lg*~T:Z!|?l/XMqvHY><5^EmLI<I<KeSk?u+dRc_HJR3s<y5N^j5KOZTO%xSQ@-?9@E6
     auth2:/tmp/tmp.WsSHipXKVZ:U2FsdGVkX1+nNEfIwkwEaebTLRoDPOWQmN9/CjzjrMRYhTIN3mRMMK56CUomg0FoCJiJahywvoSL5LfFOc3QGQHnT6vV7HWau9JT3TURfHQKh6nV6Bpw2MIcKCi/dqpphH+/A/CAYJ2bTRFN23brtqBfGqEtWjpQmj50q0TB3TRH6DswfxoqlzcFtyfMTXjdY1RjQwPOHaRvAfoHZsPJbNUyX0TdlmJGFT9uAOnOZ4J9y0TMNFaW1C3vNCcQQqxG4t80PR8PQGXET/B3i09GijCIc5kExJ4xUPoE
     dh2:/tmp/tmp.AkBH3lNAmz:%krrGWX>ee=iXQpjY/Ld6w@6,+Cx;g||_!<{c$7}4]Co;n_JcZ/qV05PtgE_Z&if+dGp>?,$Ux!?iSRNv
     auth:/tmp/tmp.AkBH3lNAmz:U2FsdGVkX1801LJLnW9ou0njeD458b/sG9tj14wUUmKp0JyXEZUmy5A+y9exsnbXEwkzEOrB5O7n1p3EbxTvUwtX/KBP7NyvfyxZY7T6ZB33TnltldD3095T9lIqCf3BilFuxUtQjJRIf6FBTfTZp/K/iJsW0HDJglQVkEnYizw2Gflz3w+xtuqIZVnDrcwJ9XtHben0B+SxlOoHYRWQnX9YzR76Iau1oMvUBGrxVPa1454Pcs1Py2R6QfEIDiMTxIDqkYSmOI2xEjrWv8XSEFfnu3b0ZChZ/E3M
 
- agent3
+agent3
+
     dh:/tmp/tmp.TiOrRUrTOv:(+{LN6qxJVy:.-/;;lW0PeD5@[Jc7nfRr^xzfOh8B15pX!9USu(wdb?U,JX>ivBx6Rv=+l6PR(yx)PUS/
     dh:/tmp/tmp.WsSHipXKVZ:&ZHSV^cr1oL!N&gK_lX|rP4x2<aN3YIiEP59%DX{l295;u0WErsnhOl,nDqneo[HsDs)ks2MzK-[t8n*M
     auth2:/tmp/tmp.TiOrRUrTOv:U2FsdGVkX19xBJf607P4dEJq62I66P5b4ZFdM1tmOrrBBRhk56JBY0O3PX17KBgV4oDznx+NMjLBTiKUtnNbRWnNjhhKEhp8TSNf7aShbhBgpvWdXiN4btLRJafUa0PjrKG3ltjIjY1JDonkxT0L7He7fwF3IadaTw+3yelbs/uAve7IRiL0Bhl1JRvpQbu3iGSWP+rlWUJuUwhU/koVTFxuK5e6BPRZBAfp9x/iyZTjRg0DbFFuvEE197HrpCQa0KxErur0mU9vVdQEsCCVvcHNuFMpLkRFlbH7
