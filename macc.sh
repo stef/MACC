@@ -151,9 +151,9 @@ function peername {
 # clean up bg processes and volatile data
 function cleanup {
     echo "leave:$socket" >>"$MULTIPLEXER"/in
-    #rm "$socket" "${VOLATILE}"/tmp.* "${VOLATILE}"/key.* "$VOLATILE"/session 2>>/dev/null
-    rm "${VOLATILE}"/tmp.* "${VOLATILE}"/key.* "$VOLATILE"/session 2>>/dev/null
+    rm "$socket" "${VOLATILE}"/tmp.* "${VOLATILE}"/key.* "$VOLATILE"/session 2>>/dev/null
     kill $groupdesc $p2pdesc #$userdesc
+    trap "-" INT PIPE EXIT HUP
     exit 2
 }
 trap "cleanup" INT PIPE EXIT HUP
