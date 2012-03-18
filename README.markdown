@@ -38,6 +38,11 @@ On 1st run this automatically generates a private/public key pair. Exchange the 
 
     echo 14445 >port # change this for multiple agents on the same host
     sudo cp /var/lib/tor/agent1/hostname . # change this for multiple agents on the same host
+    
+    # ideally the onion name could change for every start of the
+    # client for this you need to rm -rf /var/lib/tor/agent1 and
+    # restart tor, this could break other tor sessions though, so be
+    # careful, or run dedicated tor instances
 
     # For configuring the irc client, you need to configure it:
 
