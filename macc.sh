@@ -32,6 +32,11 @@ if [[ ! -r $KEYF ]]; then
     echo "and populate with their keys your 'peers' file"
 fi
 
+[[ -f peers ]] || {
+    echo "[!] please populate 'peers' file with trusted parties" >&2
+    exit 1
+}
+
 PUB=$(cat "$PUBF")
 KEY=$(cat "$KEYF")
 
