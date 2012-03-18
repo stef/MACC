@@ -1,11 +1,12 @@
 #!/bin/bash
 
-IRC_HOST="$(cat irc_server)"
-IRC_PORT="$(cat irc_port)"
+IRC_HOST=$(cat irc_server)
+IRC_PORT=$(cat irc_port)
 IRC_NICK=$(apg -q -a1 -n 1 -m 6 -M CL)
-IRC_CHAN="$(cat chan)
+IRC_CHAN=$(cat chan)
 IRC_CONNECTIONS="connections"
 
+rm "$IRC_CONNECTIONS/$IRC_HOST/in" 2>/dev/null
 mkdir -p "$IRC_CONNECTIONS"
 
 while true
