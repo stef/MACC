@@ -1,6 +1,6 @@
 Simple Multi-agent encryption
 
-NOTICE: This is an experimental tool, it is a proof-of-concept, no real cryptanalysis has been performed, and should be considered dangerous for serious use.
+NOTICE: This is an experimental tool, it is a proof-of-concept, no real cryptanalysis has been performed, and should be considered dangerous for serious use. Check out the code, it's fairly well documented, below you can find an example session simulated locally.
 
 Dependencies
 
@@ -87,7 +87,7 @@ Agent send encrypted broadcast
 
 Sample session with 3 participants
 
-Notice: this is a local file session, for torirc branch substitute the /tmp/tmp. files with the onion addresses of the clients
+Notice: this is a local file session, for torirc branch substitute the /tmp/tmp.* files with the tor hidden service addresses of the clients
 
     # first agent has italian names for the peers
     ../macc.sh ../server/
