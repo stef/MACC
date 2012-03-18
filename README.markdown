@@ -4,7 +4,7 @@ NOTICE: This is an experimental tool, it is a proof-of-concept, no real cryptana
 
 Dependencies
 
-    apt-get install seccure apg ksh ii tor
+    apt-get install seccure apg ksh ii tor # openssl is expected to be installed
 
 RUNNING THE PoC
 
