@@ -13,16 +13,16 @@ This branch uses tor for the p2p interface, and ii for the public channel.
     # You need to setup a tor hidden service for the p2p connections:
 
     cat >>/etc/tor/torrc <<EOT
-    HiddenServiceDir /var/lib/tor/agent1/
-    HiddenServicePort 80 127.0.0.1:14445
+    HiddenServiceDir /var/lib/tor/agent1/ # change this for multiple agents on the same host
+    HiddenServicePort 80 127.0.0.1:14445 # change this for multiple agents on the same host
     EOT
 
     # Running agents - as many as you want
 
     # open a new shell,
     # create a pristine directory for an agent, every agent needs his own directory!
-    mkdir -p agent1
-    cd agent1/
+    mkdir -p agent1 # change this for multiple agents on the same host
+    cd agent1/ # change this for multiple agents on the same host
 
     # run the agent
 
@@ -36,8 +36,8 @@ On 1st run this automatically generates a private/public key pair. Exchange the 
 
     # you need to configure the endpoint of the tor hidden service in the agent environment:
 
-    echo 14445 >port
-    sudo cp /var/lib/tor/agent1/hostname .
+    echo 14445 >port # change this for multiple agents on the same host
+    sudo cp /var/lib/tor/agent1/hostname . # change this for multiple agents on the same host
 
     # For configuring the irc client, you need to configure it:
 
@@ -86,6 +86,8 @@ Agent send encrypted broadcast
  2. agent sends the n encrypted messages to the broadcast channel
 
 Sample session with 3 participants
+
+Notice: this is a local file session, for torirc branch substitute the /tmp/tmp. files with the onion addresses of the clients
 
     # first agent has italian names for the peers
     ../macc.sh ../server/
