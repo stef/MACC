@@ -231,4 +231,7 @@ echo "agent:$ONION" >>"$MULTIPLEXER"/in
 # send for user input
 while read line; do
     send "$line"
+    # TODO implement handling of
+    # /add <agent>
+    # /rm <agent>
 done
