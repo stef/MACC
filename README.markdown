@@ -53,7 +53,7 @@ On 1st run this automatically generates a private/public key pair. Exchange the 
 
 macc.sh now runs in the foreground and waits for keyboard input to be broadcast to all participants in the chat.
 
-let's create 2 more agents, repeat the steps above replacing agent1 with agent2 and agent3 respectively.
+let's create 2 more agents, repeat the steps above replacing agent1 with agent2 and agent3 respectively, also assigning other ports to the tor p2p listener in "port" and in the torrc.
 
 To enable communication between these agents, they must know each others public key, so let's create the agents peer files:
 
