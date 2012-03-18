@@ -64,7 +64,7 @@ To enable communication between these agents, they must know each others public 
 
     for i in $(seq 1 3); do (echo -n "agent$i "; cat agent$i/pub) >>agent1/peers; done cp agent1/peers agent2/peers; cp agent1/peers agent3/peers
 
-Now restart all macc instances, and send message from one to the other. You can see what happens in the socket files and in the server/out file.
+Now restart all macc instances, and send message from one to the other.
 
 Protocol
 
