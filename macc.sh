@@ -11,7 +11,11 @@ alias dh='seccure-dh -q -c p521'
 
 PORT=$(cat port)
 ONION=$(cat hostname)
-MULTIPLEXER="${1:-server}"
+MULTIPLEXER="${1}"
+[[ -d "$MULTIPLEXER" ]] || {
+    echo "[!] can't connect to server" >&2
+    exit 1
+}
 VOLATILE="volatile"
 # for PoC purposes only, should be in volatile memory
 [[ ! -d "$VOLATILE" ]] && mkdir "$VOLATILE"
