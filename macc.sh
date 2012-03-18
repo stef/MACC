@@ -22,7 +22,7 @@ VOLATILE="volatile"
 
 PUBF="pub"
 KEYF="key"
-if [[ ! -r $KEYF ]]; then
+[[ -r $KEYF ]] || {
     # generate static private/pub key pair
     echo "[!] no keys found, generating new" >&2
     apg -q -a1 -m 90 -n 1 >"$KEYF"
@@ -30,7 +30,7 @@ if [[ ! -r $KEYF ]]; then
     echo -n "[!] please share this public key with your peers "
     cat "$PUBF"
     echo "and populate with their keys your 'peers' file"
-fi
+}
 
 [[ -f peers ]] || {
     echo "[!] please populate 'peers' file with trusted parties" >&2
