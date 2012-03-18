@@ -1,44 +1,59 @@
 Simple Multi-agent encryption
 
-NOTICE: This is an experimental tool, it is a proof-of-concept, it provides only local communication.
-(You could however easily hack this to make it work over irc, using ii and nc for example...)
+NOTICE: This is an experimental tool, it is a proof-of-concept, no real cryptanalysis has been performed, and should be considered dangerous for serious use.
 
 Dependencies
 
-    apt-get install seccure apg ksh
+    apt-get install seccure apg ksh ii tor
 
 RUNNING THE PoC
 
-    # Running the "broadcast channel" simulator :)
-    cd server
-    sh ./multiplexer.sh
+This branch uses tor for the p2p interface, and ii for the public channel.
+
+    # You need to setup a tor hidden service for the p2p connections:
+
+    cat >>/etc/tor/torrc <<EOT
+    HiddenServiceDir /var/lib/tor/agent1/
+    HiddenServicePort 80 127.0.0.1:14445
+    EOT
 
     # Running agents - as many as you want
 
     # open a new shell,
-    # create a pristine directory for an agent
+    # create a pristine directory for an agent, every agent needs his own directory!
     mkdir -p agent1
     cd agent1/
-    macc.sh <path to server> # run an agent
 
-On 1st run this automatically generates a private/public keypair. Exchange the public part with your peers and add to a file called peers prefixed with some nickname. For the user agent1/peers should look like this:
+    # run the agent
+
+    ../macc.sh "connections/$(cat irc_server)/$(cat chan)" # run an agent
+
+On 1st run this automatically generates a private/public key pair. Exchange the public part with your peers and add to a file called peers prefixed with some nickname. For the user agent1/peers should look like this:
 
     agent2 <long random string, which is agent2 public key>
     agent3 <other long random string, which is agent3 public key>
     ...
 
-macc.sh now runs in the foreground and waits for keyboard input to be broadcast to all participants in the chat.
-let's create 2 more agents
+    # you need to configure the endpoint of the tor hidden service in the agent environment:
 
-    # open a new terminal
-    mkdir -p agent2
-    cd agent2/
-    macc.sh <path to server>
-    
-    # open a new terminal
-    mkdir -p agent3
-    cd agent3/
-    macc.sh <path to server>
+    echo 14445 >port
+    sudo cp /var/lib/tor/agent1/hostname .
+
+    # For configuring the irc client, you need to configure it:
+
+    echo "some-irc-server.net" >>irc_server
+    echo "6667" >>irc_port
+    echo "macc-test" >>chan
+
+    # running the irc client in the background. sleeps 35 secs until it joins the channel
+
+    ksh ../irc.sh &
+
+    ../macc.sh "connections/$(cat irc_server)/$(cat chan)" # run an agent
+
+macc.sh now runs in the foreground and waits for keyboard input to be broadcast to all participants in the chat.
+
+let's create 2 more agents, repeat the steps above replacing agent1 with agent2 and agent3 respectively.
 
 To enable communication between these agents, they must know each others public key, so let's create the agents peer files:
 
@@ -66,7 +81,7 @@ New user joins group
 
 Agent send encrypted broadcast
 
- 1. agent encrypts his message for each user seperately
+ 1. agent encrypts his message for each user separately
 
  2. agent sends the n encrypted messages to the broadcast channel
 
@@ -139,3 +154,4 @@ agent3
     dh:/tmp/tmp.WsSHipXKVZ:&ZHSV^cr1oL!N&gK_lX|rP4x2<aN3YIiEP59%DX{l295;u0WErsnhOl,nDqneo[HsDs)ks2MzK-[t8n*M
     auth2:/tmp/tmp.TiOrRUrTOv:U2FsdGVkX19xBJf607P4dEJq62I66P5b4ZFdM1tmOrrBBRhk56JBY0O3PX17KBgV4oDznx+NMjLBTiKUtnNbRWnNjhhKEhp8TSNf7aShbhBgpvWdXiN4btLRJafUa0PjrKG3ltjIjY1JDonkxT0L7He7fwF3IadaTw+3yelbs/uAve7IRiL0Bhl1JRvpQbu3iGSWP+rlWUJuUwhU/koVTFxuK5e6BPRZBAfp9x/iyZTjRg0DbFFuvEE197HrpCQa0KxErur0mU9vVdQEsCCVvcHNuFMpLkRFlbH7
     auth2:/tmp/tmp.WsSHipXKVZ:U2FsdGVkX18vfb5axdjrLq8QCltsDW7BLdcpBBqBSZjTwmOIgkfv8X5scgrUz05qiRBy8gBGIP+qveLuDbc27k2NHckHxOJ/ciDk07zogzi2FeemGK/pmRmSCvvZOQGcu17XQBMf2Wr8N+3507scFRBMvg7GAXkM12E/hMrdoF8Wq2a0334kpNdT+EceBRkPXQYspbbLzl3FiSy+OTRzMCXU68GC2AapKuTsjo8RWTr9CaM+Ci5JgCvWTkBRWHw/1CYacJbc/e3m0WAw52Tnw28GPMoZQIyUuad+
+

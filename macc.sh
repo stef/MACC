@@ -39,9 +39,6 @@ socket=$(mktemp)
 socatpid=$!
 sleep 0.5
 
-# step 1. announce intent to join on broadcast channel
-echo "agent:$ONION" >>"$MULTIPLEXER"/in
-
 # step 2. initiates a session setup with a new agent
 function agent {
     [[ "x$1" == "x$ONION" ]] && return
@@ -189,11 +186,13 @@ trap "cleanup" INT PIPE EXIT HUP
 # dispatch messages in group channel for broadcast
 function group_dispatcher {
     tail -q --pid=$$ -fn0 "$MULTIPLEXER"/out | while read line; do
-        case "$line" in
-            agent:*) agent "${line#agent:}" ; continue;;
-            leave:*) leave "${line#leave:}" ; continue;;
-            msg:*) msg "${line#msg:}"; continue;;
-            *) echo "${line}";;
+        stripped="$(echo "$line" | sed 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\} .*> \(.*\)/\1/' )"
+        [[ "x$stripped" == "x$line" ]] && continue
+        case "$stripped" in
+            agent:*) agent "${stripped#agent:}" ; continue;;
+            leave:*) leave "${stripped#leave:}" ; continue;;
+            msg:*) msg "${stripped#msg:}"; continue;;
+            *) echo "unencrypted msg: ${stripped}";;
         esac
     done
 }
@@ -216,6 +215,10 @@ group_dispatcher &
 groupdesc=$!
 p2p_dispatcher &
 p2pdesc=$!
+
+sleep 0.3
+# step 1. announce intent to join on broadcast channel
+echo "agent:$ONION" >>"$MULTIPLEXER"/in
 
 # send for user input
 while read line; do
