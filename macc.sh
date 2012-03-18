@@ -126,6 +126,7 @@ function auth_reply {
 # create a unique key, encrypt this seperately with all the shared secrets from this session,
 # encrypt the data using the unique key and send this to the broadcast channel
 function send {
+    # TODO implement timestamping messages to prevent replay
     mkey=$(mktemp "$VOLATILE/key.XXXXXX")
     apg -q -a1 -m 90 -n 1 >"$mkey"
     data=$(echo "msg:$ONION:$1" | openssl enc -aes-256-cfb -e -a -kfile "$mkey" | tr -d '\n')
@@ -141,6 +142,7 @@ function send {
 # try to decrypt using the shared secret with the sender on all encrypted keys
 # try to decrypt the message with the decrypted keys, if starts with msg: display the rest"
 function msg {
+    # TODO implement prevention of replays using timestamps
     data=$(echo "$1" | cut -d":" -f1)
     keys=$(echo "$1" | cut -d":" -f2-)
     mkey=$(mktemp "$VOLATILE/key.XXXXXX")
