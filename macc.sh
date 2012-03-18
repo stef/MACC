@@ -17,7 +17,7 @@ MULTIPLEXER="${1}"
     exit 1
 }
 VOLATILE="volatile"
-# for PoC purposes only, should be in volatile memory
+# WARNING: for PoC purposes only, should be in volatile memory
 [[ ! -d "$VOLATILE" ]] && mkdir "$VOLATILE"
 
 PUBF="pub"
@@ -101,7 +101,7 @@ function auth {
         [[ "x$vkey" == "x$vkey_other" ]] && echo -n "$auth" | verify -a "$key" 2>&1 | fgrep -qs "Signature successfully verified!" && {
             echo "$VOLATILE/${peer##*/}" >>"$VOLATILE/session"
             echo "$name" >"$VOLATILE/${peer##*/}.name"
-            printf "%s -!- %10-s joined\n" "$(date '+%H:%M')" "$name"
+            printf "%s -!- %s joined\n" "$(date '+%H:%M')" "$name"
             # TODO: check this if this can be spoofed, and the verification key leaked, consequences?
             [[ -z "$2" ]] && auth_reply "$peer" "$vkey" "auth2"
             break
@@ -148,7 +148,7 @@ function msg {
                 peer=$(echo "${clr}" | cut -d':' -f2)
                 [[ "x$peer" == "x${ONION}" ]] || {
                     msg=$(echo "${clr}" | cut -d':' -f3-)
-                    printf "%s <%10-s> %s\n" "$(date '+%H:%M')" "$(peername $peer)" "$msg"
+                    printf "%s <%s > %s\n" "$(date '+%H:%M')" "$(peername $peer)" "$msg"
                 }
                 ready=true
                 break
@@ -163,7 +163,7 @@ function leave {
     [[ "x$1" == "x$ONION" ]] && return
     tmp=$(mktemp)
     sort  "$VOLATILE/session" | uniq | fgrep -v "${VOLATILE}/${1##*/}" >"$tmp" && mv "$tmp" "$VOLATILE/session"
-    printf "%s -!- %10-s left\n"  "$(date '+%H:%M')" "$(peername $1)"
+    printf "%s -!- %s left\n"  "$(date '+%H:%M')" "$(peername $1)"
 }
 
 # helper functions
@@ -175,7 +175,6 @@ function sendto {
 function peername {
     cat "$VOLATILE/${1##*/}.name"
 }
-
 
 # clean up bg processes and volatile data
 function cleanup {
